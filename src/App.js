@@ -1,27 +1,22 @@
-import { Routes, Route, BrowserRouter } from "react-router-dom";
-import { Register } from "./components/Form";
-import { Success } from "./components/Success";
-import { useState } from "react";
-import { Application } from "./components/Styles/styles";
-
+import "./App.css";
+import { Form } from "./components/Form/index";
+import { Greeting } from "./components/pages/Greeting/index";
+import { Switch, Route } from "react-router-dom";
 
 function App() {
-  const [registeredInfo, setRegisteredInfo] = useState();
   return (
-    <Application>
-      <BrowserRouter>
-        <Routes>
-          <Route
-            path="/"
-            element={<Register setRegisteredInfo={setRegisteredInfo} />}
-          />
-          <Route
-            path="/registered"
-            element={<Success registeredInfo={registeredInfo} />}
-          />
-        </Routes>
-      </BrowserRouter>
-    </Application>
+    <div className="App">
+      <header className="App-header">
+        <Switch>
+          <Route exact path="/">
+            <Form />
+          </Route>
+          <Route exact path="/sucess/:id">
+            <Greeting />
+          </Route>
+        </Switch>
+      </header>
+    </div>
   );
 }
 

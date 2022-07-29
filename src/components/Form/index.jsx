@@ -1,64 +1,58 @@
-import { FormContainer } from "../Styles/styles";
-import { useForm } from "react-hook-form";
 import * as yup from "yup";
+import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useNavigate } from "react-router-dom";
+import { Container, ButtonForm } from "./styled";
+import { useHistory } from "react-router-dom";
 
+const Form = () => {
+  const history = useHistory();
 
-export function Register({ setRegisteredInfo }) {
-  const navigate = useNavigate();
   const formSchema = yup.object().shape({
     name: yup
       .string()
-      .required("Nome e um campo obrigatório")
-      .matches(/^[aA-zZ\s]+$/, "Apenas letras do alfabeto permitidas"),
-    email: yup
-      .string()
-      .required("E-mail é um campo obrigatório")
-      .email("Insira um e-mail válido"),
+      .matches(
+        "[A-Za-záàâãéèêíïóôõöúçñÁÀÂÃÉÈÍÏÓÔÕÖÚÇÑ ]+$",
+        "Apenas caracteres obrigatório"
+      )
+      .required("Nome obrigatório"),
+    email: yup.string().required("E-mail obrigatório").email("E-mail inválido"),
     password: yup
       .string()
-      .required("Senha é um campo obrigatorio")
-      .test(
-        "len",
-        "Deve haver pelo menos 8 caracteres",
-        (val) => val.length >= 8
+      .required("Senha obrigatório")
+      .matches(
+        /(?=^.{8,}$)(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&amp;*()_+}{&quot;:;'?/&gt;.&lt;,])(?!.*\s).*$/,
+        "Sua senha deve ter de 8 à 15 dígitos, deve conter ao menos uma letra maiúscula e uma minúscula, um carácter especial e um número"
       ),
     confirmPassword: yup
       .string()
-      .oneOf([yup.ref("password"), null], "Senhas não coincidem")
-      .required("Confirmação de senha é um campo obrigatorio"),
+      .required("Confirmar senha obrigatório")
+      .oneOf([yup.ref("password"), null], "Senhas não conferem"),
   });
+
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm({
-    resolver: yupResolver(formSchema),
-  });
-  const onSubmit = (info) => {
-    navigate("/registered");
-    setRegisteredInfo(info);
+  } = useForm({ resolver: yupResolver(formSchema) });
+
+  const onSubmit = (item) => {
+    history.push(`/sucess/${item.name}`);
   };
+
   return (
-    <FormContainer onSubmit={handleSubmit(onSubmit)}>
-      <label>Digite seu nome:</label>
-      <input placeholder="Nome" type="text" {...register("name")} />
-      <p>{errors.name?.message}</p>
-      <p>Digite seu E-mail:</p>
-      <input placeholder="E-mail" type="email" {...register("email")} />
-      <p>{errors.email?.message}</p>
-      <label>Digite sua senha:</label>
-      <input placeholder="Senha" type="password" {...register("password")} />
-      <p>{errors.password?.message}</p>
-      <label>Confirme sua senha:</label>
-      <input
-        placeholder="Confirme a senha"
-        type="password"
-        {...register("confirmPassword")}
-      />
-      <p>{errors.confirmPassword?.message}</p>
-      <button type="submit">Registrar</button>
-    </FormContainer>
+    <Container>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <input placeholder="Nome" {...register("name")} />
+        <p>*{errors.name?.message}</p>
+        <input placeholder="E-mail" type="email" {...register("email")} />
+        <p>*{errors.email?.message}</p>
+        <input placeholder="Senha" {...register("password")} />
+        <p>*{errors.password?.message}</p>
+        <input placeholder="Confirmar senha" {...register("confirmPassword")} />
+        <p>*{errors.confirmPassword?.message}</p>
+        <ButtonForm type="submit">Cadastrar</ButtonForm>
+      </form>
+    </Container>
   );
-}
+};
+export { Form };
